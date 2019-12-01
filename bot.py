@@ -1,7 +1,7 @@
 import discord
 import config
 from discord.ext import commands
-from Rolls import Rolls
+from commands.Rolls import Rolls
 
 client = commands.Bot(command_prefix="!");
 
@@ -16,4 +16,4 @@ async def on_ready():
     print('------')
 
 if __name__  == '__main__':
-	client.run(config.token)
+    client.run(config.token)
