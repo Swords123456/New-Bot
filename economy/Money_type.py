@@ -1,5 +1,11 @@
 from enum import Enum
-class Money_type(Enum):
+class MoneyType(Enum):
     RS3 = 1
-    R_07 = 2
+    R07 = 2
     TOKENS = 3
+
+    def formatString(self):
+    	if self == MoneyType.R07:
+    		return "07"
+    	else:
+    		return self.name

@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.ext.commands import BadArgument
 
 class Amount(commands.Converter):
     async def convert(self, ctx, argument):

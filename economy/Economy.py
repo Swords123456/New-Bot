@@ -1,5 +1,4 @@
 from discord.ext import commands
-from Money_type import Money_type
 
 
 def amountToString(amount):
@@ -13,9 +12,3 @@ def amountToString(amount):
         return f"{round(amount / 1000, 1)}k";
     else:
         return f"{round(amount, 1)}"
-
-
-class Economy(commands.Cog):
-
-    async def withdraw_money(self, member, money, type):
-        print("hey")
