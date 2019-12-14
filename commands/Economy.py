@@ -1,18 +1,23 @@
-from discord.ext import commands
-from discord import Embed
-from discord import Colour
-import discord
-from economy.Money_type import MoneyType
-from commands.Coin_converter import CoinType
-from commands.Amount_converter import Amount
-from economy.Economy import amountToString
-import random
 import typing
+
+import discord
+from discord import Colour
+from discord import Embed
+from discord.ext import commands
+
 import config
+from commands.Amount_converter import Amount
+from commands.Coin_converter import CoinType
+from economy.Economy import amountToString
+from economy.Money_type import MoneyType
+
 
 def can_modify_economy():
     async def predicate(ctx):
-        return ctx.guild.get_role(config.can_modify_economy).position <= ctx.author.top_role.position
+        if ctx.guild.get_role(config.can_modify_economy).position <= ctx.author.top_role.position:
+            return True
+        else:
+            raise commands.MissingRole(ctx.guild.get_role(config.can_modify_economy).name)
     return commands.check(predicate)
 
 class Economy(commands.Cog):
@@ -24,8 +29,10 @@ class Economy(commands.Cog):
     async def wallet(self, ctx, user: typing.Optional[discord.Member]):
         if user == None:
             user = ctx.author
+        # if user == self.bot.user:
+        #     raise Exception("You are unable to see the bot's wallet!")
         embed = Embed(colour=Colour.gold())
-        embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        embed.set_author(name=user.name, icon_url=user.avatar_url)
         embed.add_field(name="RS3 Balance", value=amountToString(self.bot.get_amount(user.id, MoneyType.RS3)), inline=False)
         embed.add_field(name="07 Balance", value=amountToString(self.bot.get_amount(user.id, MoneyType.R07)), inline=False)
         await ctx.send(embed=embed)

@@ -5,7 +5,13 @@ class MoneyType(Enum):
     TOKENS = 3
 
     def formatString(self):
-    	if self == MoneyType.R07:
-    		return "07"
-    	else:
-    		return self.name
+        if self == MoneyType.R07:
+            return "07"
+        else:
+            return self.name
+
+    def minAmount(self):
+        if self == MoneyType.RS3:
+            return 1000000;
+        else:
+            return 100000;

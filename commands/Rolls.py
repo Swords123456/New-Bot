@@ -1,18 +1,19 @@
-from discord.ext import commands
-from discord import Embed
-from discord import Colour
-from economy.Money_type import MoneyType
-from commands.Coin_converter import CoinType
-from commands.Amount_converter import Amount
-from economy.Economy import amountToString
 import random
 
-async def roll(bot, ctx, amount, type, chance, multiplier):
-    rolled = random.randint(0, 100)
-    if bot.get_amount(ctx.author.id, type) < amount:
-        raise Exception(f"Not enough {type.formatString()}")
+from discord import Colour
+from discord import Embed
+from discord.ext import commands
+from commands.Amount_converter import Amount
+from commands.Coin_converter import CoinType
+from economy.Economy import amountToString
+from economy.Economy import amountValid
 
-    hasWon = rolled > chance;
+
+async def roll(bot, ctx, amount, type, chance, multiplier):
+    amountValid(bot, ctx.author.id, amount, type)
+
+    rolled = random.randint(0, 100)
+    hasWon = rolled > chance
 
     if hasWon:
         embed = Embed(colour=Colour.green())
@@ -48,12 +49,13 @@ class Rolls(commands.Cog):
         await roll(self.bot, ctx, amount, type, 75, 3)
 
     @commands.command(name="95")
-    async def roll_75(self, ctx, type: CoinType, amount: Amount):
+    async def roll_95(self, ctx, type: CoinType, amount: Amount):
         await roll(self.bot, ctx, amount, type, 95, 5)
 
     @roll_50.error
     @roll_54.error
     @roll_75.error
+    @roll_95.error
     async def info_error(self, ctx, error):
         embed = Embed(colour=Colour.red())
         embed.set_footer(text="Usage: ![50 | 54 | 75] [rs3 | 07] amount")
