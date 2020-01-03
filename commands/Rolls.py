@@ -27,7 +27,7 @@ async def roll(bot, ctx, amount, type, chance, multiplier):
 
     await ctx.send(embed=embed)
     if hasWon:
-        bot.update_amount(ctx.author.id, (amount * multiplier) - amount, type)
+        bot.update_amount(ctx.author.id, (amount * multiplier), type)
     else:
         bot.update_amount(ctx.author.id, -amount, type)
 
@@ -39,7 +39,7 @@ class Rolls(commands.Cog):
 
     @commands.command(name="50")
     async def roll_50(self, ctx, type: CoinType, amount: Amount):
-        await roll(self.bot, ctx, amount, type, 50, 1.75)
+        await roll(self.bot, ctx, amount, type, 50, 1.9)
 
     @commands.command(name="54")
     async def roll_54(self, ctx, type: CoinType, amount: Amount):

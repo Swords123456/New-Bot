@@ -2,7 +2,7 @@ import random
 
 from discord import Colour
 from discord import Embed
-from discord import Message
+from discord import User
 from discord import TextChannel
 from discord import Guild
 from discord.ext import commands
@@ -79,7 +79,7 @@ cards_names = [
     },
     {
         "emoji": "<:BetaGate2_Key1_Clue_HyKwIEkVVxk4:662527301669486617>",
-        "value": 10
+        "value": None
     }
 ]
 
@@ -139,7 +139,7 @@ def get_winner_at_moment(id):
 
 async def bust(id):
 
-    embed = Embed(colour=Colour.red(), description="Bust I win! Better luck next time.")
+    embed = Embed(colour=Colour.red())
 
     player_deck = data[id]["author_cards"]
     embed.add_field(name="Player", value=await embed_cards(player_deck))
@@ -147,32 +147,106 @@ async def bust(id):
     bot_deck = data[id]["bot_cards"]
     embed.add_field(name="Bot", value=await embed_cards(bot_deck))
 
+    embed.set_footer(text=f"Bust I win! Better luck next time. Amount Lost: {amountToString(data[id]['amount'])} {data[id]['type'].format_string()}", icon_url=data[id]["icon_url"])
+
     if data[id]["msg_id"] is None:
         data[id]["msg_id"] = await data[id]["channel"].send(embed=embed)
     else:
         await data[id]["msg_id"].edit(embed=embed)
 
 
-    data.pop(id)
+async def win(id, bot):
+
+    embed = Embed(colour=Colour.green())
+
+    player_deck = data[id]["author_cards"]
+    embed.add_field(name="Player", value=await embed_cards(player_deck))
+
+    bot_deck = data[id]["bot_cards"]
+    embed.add_field(name="Bot", value=await embed_cards(bot_deck))
+
+    embed.set_footer(text=f"Bust I win! Better luck next time. Amount Lost: {amountToString(data[id]['amount'])} {data[id]['type'].format_string()}", icon_url=data[id]["icon_url"])
+
+    if data[id]["msg_id"] is None:
+        data[id]["msg_id"] = await data[id]["channel"].send(embed=embed)
+    else:
+        await data[id]["msg_id"].edit(embed=embed)
+
+    bot.update_amount(id, (data[id]['amount'] * 1.9), data[id]['type'])
 
 
-async def hit(id):
-    data[id]["author_cards"].append(draw_card(id))
+async def tie(id, bot):
+
+    embed = Embed(colour=Colour.gold())
+
+    player_deck = data[id]["author_cards"]
+    embed.add_field(name="Player", value=await embed_cards(player_deck))
+
+    bot_deck = data[id]["bot_cards"]
+    embed.add_field(name="Bot", value=await embed_cards(bot_deck))
+
+    embed.set_footer(text=f"Bust I win! Better luck next time. Amount Lost: {amountToString(data[id]['amount'])} {data[id]['type'].format_string()}", icon_url=data[id]["icon_url"])
+
+    if data[id]["msg_id"] is None:
+        data[id]["msg_id"] = await data[id]["channel"].send(embed=embed)
+    else:
+        await data[id]["msg_id"].edit(embed=embed)
+
+    bot.update_amount(id, (data[id]['amount']), data[id]['type'])
+
+
+async def hit(id, channel, bot):
+    if data[id]["author_stand"]:
+        embed = Embed(colour=Colour.red())
+        embed.set_footer(text="Usage: !bj type amount", icon_url=data[id]["icon_url"])
+        embed.add_field(name='Error', value="You cannot hit after standing!")
+        await channel.send(embed=embed)
+
+    data[id]["author_cards"].append(draw_card(id, False))
+
     if calculate_total(data[id]["author_cards"]) > 21:
-        await bust(id)
+        await finish(id, Winner.BOT, bot)
     else:
         await print_embed(id)
 
 
-def draw_card(id):
-    return data[id]["deck"].pop()
+async def bot_turn(id, bot):
+    data[id]["bot_cards"].append(draw_card(id, True))
+    if calculate_total(data[id]["bot_cards"]) < 17:
+        await print_embed(id)
+        await bot_turn(id, bot)
+    else:
+        await finish(id, get_winner_at_moment(id), bot)
 
 
-def finish(id, bot_win: Winner):
+async def stand(id, bot):
+    data[id]["author_stand"] = True
+    await bot_turn(id, bot)
 
-    if bot_win == Winner.AUTHOR:
-        bot_win = Winner()
+
+def draw_card(id, bot):
+    card = data[id]["deck"].pop()
+    if card["value"] is None:
+        deck = data[id]["bot_cards" if bot else "author_cards"]
+        if calculate_total(deck) > 10:
+            card["value"] = 1
+        else:
+            card["value"] = 11
+    return card
+
+
+async def finish(id, winner: Winner, bot):
+    if winner == Winner.BOT:
+        await bust(id)
         # todo stuff
+
+    if winner == Winner.AUTHOR:
+        await win(id, bot)
+
+    if winner == Winner.TIE:
+        await tie(id, bot)
+
+    data.pop(id)
 
 
 class BlackJack(commands.Cog):
@@ -192,16 +266,16 @@ class BlackJack(commands.Cog):
         data[author_id] = {
             "channel": ctx.channel,
             "msg_id": None,
+            "author_cards": [],
             "bot_cards": [],
             "deck": cards_names * 4,
             "author_stand": False,
-            "bot_stand": False,
             "type": coin_type,
             "amount": amount,
-            "ended": False
+            "icon_url": ctx.author.avatar_url
         }
         random.shuffle(data[author_id]["deck"])
-        data[author_id]["author_cards"] = [draw_card(author_id), draw_card(author_id)]
+        data[author_id]["author_cards"] = [draw_card(author_id, False), draw_card(author_id, False)]
 
         self.bot.update_amount(author_id, -amount, coin_type)
         await print_embed(author_id)
@@ -211,7 +285,7 @@ class BlackJack(commands.Cog):
         if message.content.lower().startswith("hit"):
             if message.author.id in data:
                 await message.delete()
-                await hit(message.author.id)
+                await hit(message.author.id, message.channel, self.bot)
                 return
             embed = Embed(colour=Colour.red())
             embed.set_footer(text="Usage: !bj type amount")
@@ -221,6 +295,7 @@ class BlackJack(commands.Cog):
         if message.content.lower().startswith("stand"):
             if message.author.id in data:
                 await message.delete()
+                await stand(message.author.id, self.bot)
                 return
             embed = Embed(colour=Colour.red())
             embed.set_footer(text="Usage: !bj type amount")
