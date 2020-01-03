@@ -14,7 +14,8 @@ flowers = {
     "blue": ["https://cdn.discordapp.com/attachments/628820715013013546/629639401768484864/blue.png", Colour.blue(), "cold"],
     "pastel": ["https://cdn.discordapp.com/attachments/628820715013013546/629639424195428352/pastel.png", Colour.green(), "cold"],
     "yellow": ["https://cdn.discordapp.com/attachments/628820715013013546/629639427508928543/yelow.png", Colour.from_rgb(255, 255, 0), "hot"],
-    "red": ["https://images-ext-1.discordapp.net/external/jtOX9o1yvoetSwsOiZ8G4cUlnU3LzcE_8gnNPN32fHY/https/cdn.discordapp.com/emojis/567247590102663180.png", Colour.red(), "hot"],
+    "red": ["https://images-ext-1.discordapp.net/external/jtOX9o1yvoetSwsOiZ8G4cUlnU3LzcE_8gnNPN32fHY/"
+            "https/cdn.discordapp.com/emojis/567247590102663180.png", Colour.red(), "hot"],
     "orange": ["https://cdn.discordapp.com/attachments/628820715013013546/629639412376010752/Orange.png", Colour.orange(), "hot"],
     "rainbow": ["https://cdn.discordapp.com/attachments/628820715013013546/629639426653421569/rainbow.png", Colour.from_rgb(0, 255, 255), "Host Wins"]
    }

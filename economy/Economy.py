@@ -1,6 +1,3 @@
-from discord.ext import commands
-
-
 def amountToString(amount):
     if amount >= 1000000000:
         if amount / 10000000000 == 0:
@@ -22,13 +19,13 @@ def amountToString(amount):
 
 def amountValid(bot, userID, amount, type):
     if bot.get_amount(userID, type) < amount:
-        raise Exception(f"Not enough {type.formatString()}")
+        raise Exception(f"Not enough {type.format_string()}")
 
     if amount < 0:
         raise Exception(f"Can't gamble negative numbers")
 
-    if amount < type.minAmount():
-        raise Exception(f"Amount: {amountToString(amount)} is below minimum for {type.formatString()}")
+    if amount < type.min_amount():
+        raise Exception(f"Amount: {amountToString(amount)} is below minimum for {type.format_string()}")
 
     if bot.get_amount(bot.user.id, type) / 2 < amount:
         raise Exception(f"Bot does not have enough money.")

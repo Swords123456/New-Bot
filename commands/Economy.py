@@ -20,6 +20,7 @@ def can_modify_economy():
             raise commands.MissingRole(ctx.guild.get_role(config.can_modify_economy).name)
     return commands.check(predicate)
 
+
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -27,14 +28,16 @@ class Economy(commands.Cog):
 
     @commands.command(name="wallet", aliases=["w"])
     async def wallet(self, ctx, user: typing.Optional[discord.Member]):
-        if user == None:
+        if user is None:
             user = ctx.author
         # if user == self.bot.user:
         #     raise Exception("You are unable to see the bot's wallet!")
         embed = Embed(colour=Colour.gold())
         embed.set_author(name=user.name, icon_url=user.avatar_url)
-        embed.add_field(name="RS3 Balance", value=amountToString(self.bot.get_amount(user.id, MoneyType.RS3)), inline=False)
-        embed.add_field(name="07 Balance", value=amountToString(self.bot.get_amount(user.id, MoneyType.R07)), inline=False)
+        embed.add_field(name="RS3 Balance",
+                        value=amountToString(self.bot.get_amount(user.id, MoneyType.RS3)), inline=False)
+        embed.add_field(name="07 Balance",
+                        value=amountToString(self.bot.get_amount(user.id, MoneyType.R07)), inline=False)
         await ctx.send(embed=embed)
 
     @can_modify_economy()
@@ -42,7 +45,7 @@ class Economy(commands.Cog):
     async def set_wallet(self, ctx, type: CoinType, user: discord.Member, amount: Amount):
         embed = Embed(colour=Colour.gold())
         embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Set Request", value=f"Successfully set {type.formatString()} to {amountToString(amount)} for {user.mention} wallet", inline=False)
+        embed.add_field(name="Set Request", value=f"Successfully set {type.format_string()} to {amountToString(amount)} for {user.mention} wallet", inline=False)
         await ctx.send(embed=embed)
         self.bot.set_amount(user.id, amount, type)
 
@@ -51,25 +54,21 @@ class Economy(commands.Cog):
     async def update(self, ctx, type: CoinType, user: discord.Member, amount: Amount):
         embed = Embed(colour=Colour.gold())
         embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Update Request", value=f"Successfully updated {amountToString(amount)} {type.formatString()} to {user.mention} wallet", inline=False)
+        embed.add_field(name="Update Request", value=f"Successfully updated {amountToString(amount)} {type.format_string()} to {user.mention} wallet", inline=False)
         await ctx.send(embed=embed)
         self.bot.update_amount(user.id, amount, type)
-
 
     @wallet.error
     async def wallet_info_error(self, ctx, error):
         await self.info_error(ctx, error, "![w | wallet] user")
 
-
     @set_wallet.error
     async def wallet_info_error(self, ctx, error):
         await self.info_error(ctx, error, "!set [rs3 | 07] user amount")
 
-
     @update.error
     async def wallet_info_error(self, ctx, error):
         await self.info_error(ctx, error, "!update [rs3 | 07] user amount")
-
 
     async def info_error(self, ctx, error, usage):
         embed = Embed(colour=Colour.red())

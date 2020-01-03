@@ -2,6 +2,7 @@ import random
 
 from discord import Colour
 from discord import Embed
+from discord import Message
 from discord.ext import commands
 
 from commands.Amount_converter import Amount
@@ -16,9 +17,9 @@ async def dd(bot, ctx, amount, type):
     user = random.randint(2, 12)
     bot_chance = random.randint(2, 12)
 
-    hasWon = user > bot_chance
+    has_won = user > bot_chance
 
-    if hasWon:
+    if has_won:
         colour = Colour.green()
     elif user == bot_chance:
         colour = Colour.orange()
@@ -35,11 +36,11 @@ async def dd(bot, ctx, amount, type):
     if user == bot_chance:
         embed.add_field(name="Dice Results: ", value="Tie", inline=False)
     else:
-        embed.add_field(name="Dice Results: ", value=ctx.author.mention if hasWon else bot.user.mention, inline=False)
-        embed.add_field(name="Money:", value=f"You won {amountToString((amount * 1.9) - amount)}" if hasWon else f"You lost {amountToString(amount)}", inline=False)
+        embed.add_field(name="Dice Results: ", value=ctx.author.mention if has_won else bot.user.mention, inline=False)
+        embed.add_field(name="Money:", value=f"You won {amountToString((amount * 1.9) - amount)}" if has_won else f"You lost {amountToString(amount)}", inline=False)
 
     await ctx.send(embed=embed)
-    if hasWon:
+    if has_won:
         bot.update_amount(ctx.author.id, (amount * 1.9) - amount, type)
     elif bot_chance != user:
         bot.update_amount(ctx.author.id, -amount, type)

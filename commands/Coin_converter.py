@@ -1,10 +1,11 @@
 from discord.ext import commands
 from economy.Money_type import MoneyType
 
+
 class CoinType(commands.Converter):
     async def convert(self, ctx, argument):
         if argument.lower() == "rs3":
-            return MoneyType.RS3;
+            return MoneyType.RS3
         elif argument.lower() == "07":
             return MoneyType.R07
         elif argument.lower() == "token":

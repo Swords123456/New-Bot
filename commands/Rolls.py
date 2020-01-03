@@ -21,15 +21,16 @@ async def roll(bot, ctx, amount, type, chance, multiplier):
         embed = Embed(colour=Colour.red())
 
     embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-    embed.add_field(name="Dice game", 
-        value=f"Rolled {rolled} out of 100. You {'won' if hasWon else 'lost'} {amountToString((amount * multiplier) - amount) if hasWon else amountToString(amount)} {type.formatString()}"
-        )
+    embed.add_field(name="Dice game",
+                    value=f"Rolled {rolled} out of 100. You {'won' if hasWon else 'lost'} {amountToString((amount * multiplier) - amount) if hasWon else amountToString(amount)} {type.format_string()}"
+                    )
 
     await ctx.send(embed=embed)
     if hasWon:
         bot.update_amount(ctx.author.id, (amount * multiplier) - amount, type)
     else:
         bot.update_amount(ctx.author.id, -amount, type)
+
 
 class Rolls(commands.Cog):
     def __init__(self, bot):

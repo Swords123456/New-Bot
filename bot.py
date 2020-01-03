@@ -5,6 +5,7 @@ import config
 from commands.DD import DD
 from commands.Plant import Plant
 from commands.Economy import Economy
+from commands.Blackjack import BlackJack
 from commands.Rolls import Rolls
 from economy.Money_type import MoneyType
 
@@ -56,6 +57,8 @@ client.add_cog(Rolls(client))
 client.add_cog(Economy(client))
 client.add_cog(DD(client))
 client.add_cog(Plant(client))
+client.add_cog(BlackJack(client))
+
 
 @client.event
 async def on_ready():
@@ -65,6 +68,5 @@ async def on_ready():
     print('------')
 
 if __name__  == '__main__':
-    print(get_amount("262051261883351042", MoneyType.RS3))
     print(cache)
     client.run(config.token)
